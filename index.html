@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>甜心物语</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        // 调试按钮控制 - 按F1显示/隐藏
+        let debugButtonsVisible = false;
+        
+        function toggleDebugButtons() {
+            debugButtonsVisible = !debugButtonsVisible;
+            const buttons = ['debugSkipBtn', 'debugPerfectBtn', 'debugGoodBtn', 'debugFailBtn'];
+            
+            buttons.forEach(buttonId => {
+                const button = document.getElementById(buttonId);
+                if (button) {
+                    button.style.display = debugButtonsVisible ? 'block' : 'none';
+                }
+            });
+            
+            // 显示提示信息
+            if (debugButtonsVisible) {
+                console.log('🔧 调试按钮已显示（按F1隐藏）');
+            } else {
+                console.log('🔧 调试按钮已隐藏（按F1显示）');
+            }
+        }
+        
+        // 按F1显示/隐藏调试按钮
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F1') {
+                e.preventDefault();
+                toggleDebugButtons();
+            }
+        });
+        
+        // 检测封面图片加载状态
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== 封面图调试信息 ===');
+            
+            // 为标题页添加特殊类，移除box背景
+            const box = document.getElementById('box');
+            const titlePage = document.getElementById('titlePage');
+            console.log('Box元素:', box);
+            console.log('标题页元素:', titlePage);
+            
+            if (box && titlePage) {
+                box.classList.add('title-page');
+                console.log('已添加title-page类到box');
+                console.log('Box背景色:', window.getComputedStyle(box).backgroundColor);
+            }
+            
+            const coverImg = document.querySelector('.cover-image img');
+            const coverDiv = document.querySelector('.cover-image');
+            console.log('封面图片元素:', coverImg);
+            console.log('封面容器元素:', coverDiv);
+            
+            if (coverImg) {
+                console.log('图片src:', coverImg.src);
+                console.log('图片完整URL:', coverImg.src);
+                
+                coverImg.onload = function() {
+                    console.log('✅ 封面图片加载成功');
+                    console.log('图片尺寸:', coverImg.naturalWidth, 'x', coverImg.naturalHeight);
+                    
+                    // 检查图片的实际显示状态
+                    const imgStyles = window.getComputedStyle(coverImg);
+                    console.log('图片样式:');
+                    console.log('- width:', imgStyles.width);
+                    console.log('- height:', imgStyles.height);
+                    console.log('- opacity:', imgStyles.opacity);
+                    console.log('- filter:', imgStyles.filter);
+                    console.log('- display:', imgStyles.display);
+                    console.log('- visibility:', imgStyles.visibility);
+                    
+                    // 检查图片是否真的可见
+                    const rect = coverImg.getBoundingClientRect();
+                    console.log('图片位置和尺寸:', rect);
+                    
+                    console.log('封面图片加载成功');
+                };
+                coverImg.onerror = function() {
+                    console.log('❌ 封面图片加载失败，使用备用背景');
+                    console.log('失败URL:', coverImg.src);
+                    if (coverDiv) {
+                        coverDiv.style.background = 'linear-gradient(135deg, #ffb6d5 0%, #ffc0cb 50%, #dda0dd 100%)';
+                        console.log('已设置备用背景');
+                    }
+                };
+                
+                // 检查图片是否已经加载完成
+                if (coverImg.complete) {
+                    if (coverImg.naturalHeight !== 0) {
+                        console.log('✅ 图片已加载完成');
+                        console.log('图片实际尺寸:', coverImg.naturalWidth, 'x', coverImg.naturalHeight);
+                        
+                        console.log('封面图片显示正常');
+                    } else {
+                        console.log('❌ 图片加载失败（naturalHeight为0）');
+                        console.log('图片src:', coverImg.src);
+                        console.log('尝试直接访问图片URL...');
+                        
+                        // 尝试直接访问图片
+                        fetch(coverImg.src)
+                            .then(response => {
+                                console.log('图片HTTP状态:', response.status);
+                                if (response.ok) {
+                                    console.log('图片可以访问，但可能格式有问题');
+                                } else {
+                                    console.log('图片无法访问');
+                                }
+                            })
+                            .catch(error => {
+                                console.log('图片访问错误:', error);
+                            });
+                    }
+                } else {
+                    console.log('⏳ 图片正在加载中...');
+                }
+            } else {
+                console.log('❌ 未找到封面图片元素');
+            }
+            
+            // 检查CSS样式
+            if (coverDiv) {
+                const styles = window.getComputedStyle(coverDiv);
+                console.log('封面容器样式:');
+                console.log('- position:', styles.position);
+                console.log('- z-index:', styles.zIndex);
+                console.log('- background:', styles.background);
+                console.log('- display:', styles.display);
+            }
+        });
+        
+        // 帮助按钮功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const helpBtn = document.getElementById('helpBtn');
+            if (helpBtn) {
+                helpBtn.addEventListener('click', showHelpModal);
+            }
+        });
+        
+        // 显示帮助弹窗
+        function showHelpModal() {
+            const overlay = document.createElement('div');
+            overlay.className = 'help-overlay';
+            overlay.innerHTML = `
+                <div class="help-content">
+                    <div class="help-title">💡 游戏帮助</div>
+                    <div class="help-text">
+                        <p><strong>1、</strong>若游戏界面元素显示过大或过小，请尝试按住 <span class="highlight">Ctrl</span> 键并滚动鼠标滚轮，或调整浏览器的缩放比例至合适大小，以获得最佳体验。</p>
+                        <p><strong>2、</strong>我们为你准备了两首放松的背景音乐。<span class="highlight">双击</span>页面右下角的音符图标 🎵，即可随时切换哦！</p>
+                    </div>
+                    <button class="help-close" onclick="closeHelpModal(this)">我知道了</button>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            
+            // 点击遮罩层关闭弹窗
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    closeHelpModal(overlay);
+                }
+            });
+            
+            // ESC键关闭弹窗
+            document.addEventListener('keydown', function escHandler(e) {
+                if (e.key === 'Escape') {
+                    closeHelpModal(overlay);
+                    document.removeEventListener('keydown', escHandler);
+                }
+            });
+        }
+        
+        // 关闭帮助弹窗
+        function closeHelpModal(element) {
+            const overlay = element.closest('.help-overlay') || element;
+            if (overlay && overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
+            }
+        }
+    </script>
+</head>
+
+
+<div id="box">
+    <!-- ===== 标题页 ===== -->
+    <div id="titlePage">
+        <div class="cover-image">
+            <img src="images/cover.jpg" alt="甜心物语封面" onerror="console.log('封面图片加载失败: images/cover.jpg'); this.style.display='none'">
+        </div>
+        <h1>甜心物语</h1>
+        <button class="btn" onclick="startGame()">开始游戏</button>
+        <button id="helpBtn" title="帮助">？</button>
+        <button id="musicToggle" title="音乐">♪</button>
+    </div>
+
+    <!-- ===== 游戏页（前台） ===== -->
+    <div id="gamePage">
+        <header>
+            <span>第 <span id="round">1</span> 回合 · 顾客 <span id="customerNo">1</span>/5</span>
+            <span>💰 <span id="money">200</span> | ⭐ <span id="fame">0</span></span>
+        </header>
+        <div id="patienceBar"><div id="patienceFill"></div></div>
+        <div id="customerPan" class="customer-container">
+            <img class="customer-avatar" src="images/transparent.png" alt="顾客">
+            <div id="customerWords" class="customer-words-front"></div>
+            <div id="enterKitchenWrap">
+                <button class="btn2" id="defaultEnterKitchenBtn" onclick="enterKitchen()">进入后厨</button>
+            </div>
+            <!-- 调试按钮（默认隐藏，按F1显示） -->
+            <button id="debugSkipBtn" onclick="skipRound()" title="跳过这个回合（调试用）" style="display:none;">跳过回合</button>
+            <button id="debugPerfectBtn" onclick="testPerfect()" title="测试完美制作（调试用）" style="display:none;">完美制作</button>
+            <button id="debugGoodBtn" onclick="testGood()" title="测试普通制作（调试用）" style="display:none;">普通制作</button>
+            <button id="debugFailBtn" onclick="testFail()" title="测试失败制作（调试用）" style="display:none;">失败制作</button>
+            <!-- 评价阶段复用同一容器显示成品与确认按钮 -->
+            <div id="dishResult" class="dish-result" style="display:none;">
+                <div id="dishImage" class="dish-image"></div>
+                <div id="dishName" class="dish-name"></div>
+            </div>
+            <button id="evalOkBtn" class="btn" style="display:none;" onclick="closeEval()">好的</button>
+            
+        </div>
+        <!-- 柜台前景（覆盖在立绘之上、对话/按钮/成品之下） -->
+        <div class="counter-overlay" aria-hidden="true"></div>
+    </div>
+
+    <!-- ===== 后厨页 ===== -->
+    <div id="kitchenPage">
+        <button id="recipeBtn" onclick="toggleRecipe()">菜谱</button>
+        <div id="ingrList"></div>
+        <div id="mixBowl">拖入3种配料</div>
+        <button id="bakeBtn" onclick="goBake()" disabled>开始烘焙</button>
+        <!-- 烘焙遮罩（同页绝对居中） -->
+        <div id="bakeCover" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0);flex-direction:column;align-items:center;justify-content:center;">
+            <canvas id="ringCanvas" width="720" height="720"></canvas>
+            <button id="bakeStopBtn" onclick="stopRing()">停！</button>
+        </div>
+    </div>
+
+</div>     <!-- #box 结束 -->
+
+<!-- 评价页结构已合并到 #gamePage 中，保留脚本引用在同页切换状态 -->
+
+<script src="script.js"></script>
+</body>
+</html>

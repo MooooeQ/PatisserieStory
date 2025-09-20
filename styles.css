@@ -1,0 +1,1373 @@
+/* ===== 9:16 等比容器 ===== */
+#box{width:100vw;height:calc(100vw * 16 / 9);max-height:100vh;max-width:calc(100vh * 9 / 16);margin:auto;background:#fff;box-shadow:0 0 20px rgba(0,0,0,.15);position:relative;overflow:hidden;}
+
+/* 标题页时移除box背景，让封面图显示 */
+#box.title-page {
+    background: transparent;
+}
+html,body{margin:0;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(to right,#ffeef7,#fff0f5);font-family:sans-serif;}
+
+/* 移除系统缩放自适应设置，现在使用浏览器原生缩放 */
+
+/* ===== 标题页 ===== */
+#titlePage{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 封面图片作为背景 */
+.cover-image{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* 改为正数，确保在背景之上 */
+    overflow: hidden;
+    /* 移除默认背景，让图片显示 */
+    background: transparent;
+}
+
+.cover-image img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    filter: brightness(0.8) blur(0.5px); /* 恢复适度的滤镜效果 */
+    display: block;
+    opacity: 1;
+}
+
+/* 当图片加载失败时，通过JavaScript设置备用背景 */
+
+/* 帮助弹窗样式 */
+.help-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    backdrop-filter: blur(5px);
+}
+
+.help-content {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 182, 213, 0.3);
+    position: relative;
+}
+
+.help-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff7eb6;
+    text-align: center;
+    margin-bottom: 25px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.help-text {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.help-text strong {
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+.help-text .highlight {
+    color: #ff6b6b;
+    font-weight: bold;
+    background: rgba(255, 107, 107, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.help-close {
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(135deg, #ffb6d5, #ffc0cb);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(255, 182, 213, 0.4);
+    transition: all 0.3s ease;
+}
+
+.help-close:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 182, 213, 0.6);
+}
+
+.help-close:active {
+    transform: translateY(0);
+}
+
+/* 标题文字样式增强 */
+h1{
+    font-size:72px;
+    color:#fff;
+    margin:0 0 20px;
+    text-align:center;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
+    font-weight: bold;
+    letter-spacing: 2px;
+    position: relative;
+    z-index: 10; /* 确保在图片之上 */
+}
+
+/* 按钮样式增强 */
+.btn{
+    position: relative;
+    z-index: 10; /* 确保在图片之上 */
+    background: rgba(255, 182, 213, 0.9);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(255, 182, 213, 0.4);
+}
+
+.btn:hover{
+    background: rgba(255, 182, 213, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3), 0 6px 15px rgba(255, 182, 213, 0.5);
+}
+
+/* 帮助按钮样式 */
+#helpBtn{
+    position: absolute;
+    bottom: 110px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 182, 213, 0.9);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border: none;
+    color: #fff;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+#helpBtn:hover{
+    background: rgba(255, 182, 213, 1);
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* 音乐按钮样式增强 */
+#musicToggle{
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 182, 213, 0.9);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border: none;
+    color: #fff;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 10; /* 确保在图片之上 */
+}
+
+#musicToggle:hover{
+    background: rgba(255, 182, 213, 1);
+    transform: scale(1.1);
+}
+
+.btn{width:360px;height:100px;background:#ffb6d5;border:none;border-radius:50px;font-size:36px;color:#fff;cursor:pointer;box-shadow:0 6px 20px rgba(255,182,213,.6);}
+.btn:active{transform:scale(.97);}
+#musicToggle{position:absolute;bottom:30px;right:30px;width:60px;height:60px;background:#ffb6d5;border-radius:50%;border:none;color:#fff;font-size:28px;cursor:pointer;}
+
+/* ===== 游戏页（前台） ===== */
+#gamePage{display:none;height:100%;flex-direction:column;/* 顶部与耐心条尺寸变量（用于悬挂气泡定位） */--hdr:100px;--barH:28px;--barTop:20px;/* 立绘底部基准与柜台对齐（桌面端用） */--avatarBottom:18vh;}
+header{height:100px;background:#ffe0f0;display:flex;align-items:center;justify-content:space-between;padding:0 40px;font-size:32px;font-weight:bold;}
+#customerPan{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 40px;position:relative;}
+#customerWords{
+    background: linear-gradient(135deg, #ffffff 0%, #fff8fc 100%);
+    padding:calc(30px * var(--scale-factor, 1));
+    border-radius:calc(25px * var(--scale-factor, 1));
+    margin-bottom:calc(40px * var(--scale-factor, 1));
+    max-width:calc(640px * var(--scale-factor, 1)); /* 和耐心值条一样宽 */
+    width:calc(640px * var(--scale-factor, 1));
+    text-align:center;
+    font-size:calc(40px * var(--scale-factor, 1));
+    color:#333;
+    box-sizing:border-box;
+    box-shadow: 0 8px 32px rgba(255, 182, 213, 0.15), 0 2px 8px rgba(255, 182, 213, 0.1);
+    border: 2px solid rgba(255, 182, 213, 0.2);
+    position: relative;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.5px;
+}
+
+/* 对话气泡的装饰性伪元素 */
+#customerWords::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, #ffb6d5, #ffc0cb, #ffb6d5);
+    border-radius: calc(27px * var(--scale-factor, 1));
+    z-index: -1;
+    opacity: 0.3;
+    filter: blur(1px);
+}
+
+/* 悬停效果 */
+#customerWords:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(255, 182, 213, 0.25), 0 4px 12px rgba(255, 182, 213, 0.15);
+    border-color: rgba(255, 182, 213, 0.4);
+}
+#patienceBar{width:calc(640px * var(--scale-factor, 1));height:calc(28px * var(--scale-factor, 1));background:#e5e5e5;border-radius:calc(14px * var(--scale-factor, 1));overflow:hidden;margin:calc(20px * var(--scale-factor, 1)) auto calc(30px * var(--scale-factor, 1));}
+#patienceFill{height:100%;width:100%;background:linear-gradient(to right,#7bed9f,#ffeaa7,#ff7675);transition:width .2s;}
+.btn2{margin:calc(10px * var(--scale-factor, 1));width:calc(640px * var(--scale-factor, 1));height:calc(120px * var(--scale-factor, 1));background:#ffb6d5;border:none;border-radius:calc(60px * var(--scale-factor, 1));font-size:calc(48px * var(--scale-factor, 1));color:#fff;cursor:pointer;}
+
+/* 标题页响应式 */
+@media (max-width: 1199px) and (min-width: 769px) {
+    h1{font-size:60px;margin:0 0 15px;}
+    .btn{width:320px;height:90px;font-size:32px;}
+    #helpBtn{width:55px;height:55px;font-size:26px;bottom:100px;}
+    #musicToggle{width:55px;height:55px;font-size:26px;}
+    
+    .help-content{padding:30px;max-width:450px;}
+    .help-title{font-size:22px;}
+    .help-text{font-size:15px;}
+}
+
+/* 游戏页响应式 */
+@media (max-width: 1199px) and (min-width: 769px) {
+    header{height:80px;padding:0 30px;font-size:28px;}
+    #gamePage{ --hdr:80px; --barH:24px; --barTop:18px; }
+    #customerWords{max-width:500px;width:500px;padding:25px;font-size:32px;margin-bottom:30px;border-radius:20px;box-shadow: 0 6px 24px rgba(255, 182, 213, 0.15), 0 2px 6px rgba(255, 182, 213, 0.1);border: 2px solid rgba(255, 182, 213, 0.2);}
+    #patienceBar{width:500px;height:24px;margin:18px auto 28px;}
+    .btn2{width:500px;height:100px;font-size:40px;}
+}
+
+@media (max-width: 768px) and (min-width: 481px) {
+    h1{font-size:48px;margin:0 0 15px;}
+    .btn{width:280px;height:80px;font-size:28px;}
+    #helpBtn{width:50px;height:50px;font-size:24px;bottom:90px;}
+    #musicToggle{width:50px;height:50px;font-size:24px;}
+    
+    .help-content{padding:25px;max-width:400px;}
+    .help-title{font-size:20px;}
+    .help-text{font-size:14px;}
+    
+    header{height:70px;padding:0 20px;font-size:24px;}
+    #gamePage{ --hdr:70px; --barH:20px; --barTop:15px; }
+    #customerWords{max-width:400px;width:400px;padding:20px;font-size:28px;margin-bottom:25px;border-radius:18px;box-shadow: 0 5px 20px rgba(255, 182, 213, 0.15), 0 2px 5px rgba(255, 182, 213, 0.1);border: 2px solid rgba(255, 182, 213, 0.2);}
+    #patienceBar{width:400px;height:20px;margin:15px auto 25px;}
+    .btn2{width:400px;height:80px;font-size:32px;}
+}
+
+/* 高分辨率手机屏幕 (如一加 Ace 2 Pro) */
+@media (max-width: 1300px) and (min-width: 769px) and (max-height: 3000px) and (min-height: 2000px) {
+    header{height:70px;padding:0 20px;font-size:24px;}
+    #gamePage{ --hdr:70px; --barH:20px; --barTop:15px; }
+    #customerWords{max-width:75% !important;width:75% !important;padding:20px;font-size:28px !important;margin-bottom:25px;left:50% !important;transform:translateX(-50%) !important;}
+    #patienceBar{width:75% !important;height:20px;margin:15px auto 25px;}
+    .btn2{width:75%;height:80px;font-size:32px;}
+    
+    /* 评价页样式 */
+    .game-eval #customerWords {
+        max-width:75% !important;
+        width:75% !important;
+        left:50% !important;
+        transform:translateX(-50%) !important;
+        margin-bottom: 2vh !important;
+    }
+}
+
+/* ===== 后厨页 ===== */
+#kitchenPage{
+    display:none;
+    height:100%;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    box-sizing:border-box;
+    overflow:hidden;
+    position: relative;
+}
+#recipeBtn{
+    position:absolute;
+    top:30px;
+    left:50%;
+    transform:translateX(-50%);
+    width:180px;
+    height:80px;
+    background:#ffb6d5;
+    border:none;
+    border-radius:40px;
+    font-size:36px;
+    color:#fff;
+    cursor:pointer;
+    z-index:10;
+}
+#ingrList{
+    margin-bottom:50px;
+    max-width:100%;
+    box-sizing:border-box;
+    padding:20px;
+}
+.ingr{
+    width:min(16.2vmin, 198px);
+    height:min(16.2vmin, 198px);
+    background:transparent;
+    border-radius:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:min(3.2vmin, 28px);
+    cursor:pointer;
+    user-select:none;
+    touch-action:none;
+    box-sizing:border-box;
+    flex-shrink:0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 配料图片样式 */
+.ingr-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 20px;
+    pointer-events: none; /* 防止图片干扰拖拽 */
+    user-select: none;    /* 防止图片被选中 */
+}
+
+/* 配料位置控制 - 使用绝对定位 */
+
+/* 首先设置容器为相对定位 */
+#ingrList {
+    position: relative;
+    height: 400px; /* 设置容器高度，你可以根据需要调整 */
+}
+
+/* 桌面端位置 (≥769px) - 限制在box范围内 */
+@media (min-width: 769px) {
+    .ingr[data-ingr="面粉"] { position: absolute; top: 100%; left: -850%; }
+    .ingr[data-ingr="鸡蛋"] { position: absolute; top: 35%; left: 235%; }
+    .ingr[data-ingr="巧克力"] { position: absolute; top: 100%; left: -225%; }
+    .ingr[data-ingr="抹茶粉"] { position: absolute; top: 100%; left: -557%; }
+    .ingr[data-ingr="苹果"] { position: absolute; top: 36%; left: -100%; }
+    .ingr[data-ingr="糖浆"] { position: absolute; top: 100%; left: 29%; }
+    .ingr[data-ingr="杏仁粉"] { position: absolute; top: 35%; left: -890%; }
+    .ingr[data-ingr="食用色素"] { position: absolute; top: 105%; left: 530%; }
+    .ingr[data-ingr="奶油"] { position: absolute; top: 100%; left: 267%; }
+    .ingr[data-ingr="草莓"] { position: absolute; top: 36%; left: 555%; }
+}
+
+/* 手机端位置 (≤768px) - 限制在box范围内 */
+@media (max-width: 768px) {
+    #ingrList {
+        height: 300px; /* 手机端容器高度 */
+    }
+    
+    .ingr[data-ingr="面粉"] { position: absolute; top: 50%; left: -365%; }
+    .ingr[data-ingr="鸡蛋"] { position: absolute; top: 5%; left: 155%; }
+    .ingr[data-ingr="巧克力"] { position: absolute; top: 50%; left: -80%; }
+    .ingr[data-ingr="抹茶粉"] { position: absolute; top: 50%; left: -227%; }
+    .ingr[data-ingr="苹果"] { position: absolute; top: 5%; left: 0%; }
+    .ingr[data-ingr="糖浆"] { position: absolute; top: 50%; left: 49%; }
+    .ingr[data-ingr="杏仁粉"] { position: absolute; top: 8%; left: -400%; }
+    .ingr[data-ingr="食用色素"] { position: absolute; top:52%; left: 300%; }
+    .ingr[data-ingr="奶油"] { position: absolute; top: 50%; left: 167%; }
+    .ingr[data-ingr="草莓"] { position: absolute; top: 5%; left: 315%; }
+}
+
+/* 调试按钮样式 */
+#debugSkipBtn, #debugPerfectBtn, #debugGoodBtn, #debugFailBtn {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    background: #ff6b6b !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    z-index: 99999 !important;
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3) !important;
+    transition: all 0.2s ease !important;
+    pointer-events: auto !important;
+    margin-bottom: 5px !important;
+}
+
+#debugSkipBtn {
+    top: 20px !important;
+    background: #ff6b6b !important;
+}
+
+#debugPerfectBtn {
+    top: 60px !important;
+    background: #4caf50 !important;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3) !important;
+}
+
+#debugGoodBtn {
+    top: 100px !important;
+    background: #ff9800 !important;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3) !important;
+}
+
+#debugFailBtn {
+    top: 140px !important;
+    background: #f44336 !important;
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3) !important;
+}
+
+#debugSkipBtn:hover {
+    background: #ff5252;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+}
+
+#debugSkipBtn:active {
+    transform: translateY(0);
+}
+
+/* 图片加载失败时的文字后备样式 */
+.ingr-text-fallback {
+    font-size: min(3.2vmin, 28px);
+    color: #ff7eb6;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1;
+}
+#mixBowl{
+    width:min(26vmin, 320px);
+    height:min(26vmin, 320px);
+    background:#fff3f8;
+    border:6px dashed #ffb6d5;
+    border-radius:50%;
+    margin-top: -550px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:min(3.2vmin, 28px);
+    margin-bottom:40px;
+    box-sizing:border-box;
+    flex-shrink:0;
+}
+#bakeBtn{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    width:min(60vmin, 520px);
+    height:min(15vmin, 140px);
+    background:#ffb6d5;
+    border:none;
+    border-radius:60px;
+    font-size:min(4.5vmin, 42px);
+    color:#fff;
+    cursor:pointer;
+    box-sizing:border-box;
+    opacity:0;
+    visibility:hidden;
+    transition:opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#bakeBtn:not([disabled]){
+    opacity:1;
+    visibility:visible;
+}
+
+ /* ===== 半圆环反应条（同页遮罩） ===== */
+ #bakeCover{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,.95);flex-direction:column;align-items:center;justify-content:flex-start;padding-top:50px;overflow:hidden;}
+ #ringCanvas{width:90vw;height:90vw;max-width:720px;max-height:720px;background:#fff;border-radius:50%;box-shadow:0 0 20px rgba(0,0,0,.1);position:absolute;left:50%;top:50%;transform:translate(-50%, -50%);}
+
+/* 电脑端：半圆位置 */
+@media (min-width: 769px) {
+    #ringCanvas {
+        top: 100%; /* 让半圆露在画面内 */
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* 手机端：半圆位置 */
+@media (max-width: 768px) {
+    #ringCanvas {
+        top: 95%; /* 手机端位置 */
+        transform: translate(-50%, -50%);
+    }
+}
+ #bakeStopBtn{position:fixed;top:50%;left:50%;transform:translate(-50%, -50%);width:480px;height:120px;background:#ffb6d5;border:none;border-radius:60px;font-size:48px;color:#fff;cursor:pointer;}
+
+ /* ===== 评价页 ===== */
+ #evalPage {
+     display:none;
+     height:100%;
+     flex-direction:column;
+     align-items:center;
+     justify-content:center;
+     text-align:center;
+     position:fixed;
+     inset:0;
+     z-index:9999;
+     background:linear-gradient(to right,#ffeef7,#fff0f5); /* 与游戏主背景一致 */
+ }
+
+/* === 响应式设计 === */
+/* 超大屏幕 (2K及以上) */
+@media (min-width: 1920px) {
+    .ingr{width:180px;height:180px;font-size:36px;}
+    #mixBowl{width:300px;height:300px;font-size:36px;}
+    #bakeBtn{width:480px;height:120px;font-size:48px;}
+    #bakeStopBtn{width:480px;height:120px;font-size:48px;}
+    #recipeBtn{width:180px;height:80px;font-size:36px;}
+    /* 放大大屏上的立绘 */
+    #gamePage .customer-avatar{height:78vh;max-height:1100px;}
+    #evalPage .customer-avatar{height:40vh;max-height:560px;}
+}
+
+/* 大屏幕 (1080p-2K) */
+@media (max-width: 1919px) and (min-width: 1200px) {
+    .ingr{width:144px;height:144px;font-size:28px;}
+    #mixBowl{width:240px;height:240px;font-size:28px;}
+    #bakeBtn{width:380px;height:100px;font-size:40px;}
+    #bakeStopBtn{width:380px;height:100px;font-size:40px;}
+    #recipeBtn{width:150px;height:70px;font-size:30px;}
+    /* 1080p 桌面优化立绘尺寸 */
+    #gamePage .customer-avatar{height:75vh;max-height:900px;}
+    #evalPage .customer-avatar{height:36vh;max-height:480px;}
+}
+
+/* 低DPI屏幕（如1080p）元素缩放调整 */
+@media (max-width: 1920px) and (min-width: 1200px) and (max-height: 1200px) and (max-resolution: 120dpi) {
+    .ingr{width:115px;height:115px;font-size:22px;}
+    #mixBowl{width:192px;height:192px;font-size:22px;}
+    #bakeBtn{width:304px;height:80px;font-size:32px;}
+    #bakeStopBtn{width:304px;height:80px;font-size:32px;}
+    #recipeBtn{width:120px;height:56px;font-size:24px;}
+    /* 1080p 立绘尺寸调整 */
+    #gamePage .customer-avatar{height:60vh;max-height:720px;}
+    #evalPage .customer-avatar{height:29vh;max-height:384px;}
+    /* 气泡和按钮尺寸调整 */
+    #customerWords{max-width:512px !important;width:512px !important;font-size:32px;}
+    #patienceBar{width:512px !important;}
+    .btn2{width:512px;height:96px;font-size:38px;}
+}
+
+/* 高DPI屏幕（如2K/4K）元素放大调整 */
+@media (min-width: 1920px) and (min-resolution: 120dpi) {
+    .ingr{width:180px;height:180px;font-size:36px;}
+    #mixBowl{width:300px;height:300px;font-size:36px;}
+    #bakeBtn{width:480px;height:120px;font-size:48px;}
+    #bakeStopBtn{width:480px;height:120px;font-size:48px;}
+    #recipeBtn{width:180px;height:80px;font-size:36px;}
+    /* 高DPI 立绘尺寸调整 */
+    #gamePage .customer-avatar{height:78vh;max-height:1100px;}
+    #evalPage .customer-avatar{height:40vh;max-height:560px;}
+    /* 气泡和按钮尺寸调整 */
+    #customerWords{max-width:640px !important;width:640px !important;font-size:40px;}
+    #patienceBar{width:640px !important;}
+    .btn2{width:640px;height:120px;font-size:48px;}
+}
+
+
+/* 中等屏幕 (平板/小桌面) */
+@media (max-width: 1199px) and (min-width: 769px) {
+    .ingr{width:126px;height:126px;font-size:24px;}
+    #mixBowl{width:200px;height:200px;font-size:24px;}
+    #bakeBtn{width:320px;height:80px;font-size:32px;}
+    #bakeStopBtn{width:320px;height:80px;font-size:32px;}
+    #recipeBtn{width:130px;height:60px;font-size:26px;}
+    #ingrList{gap:20px;}
+}
+
+/* 小屏幕 (大手机) */
+@media (max-width: 768px) and (min-width: 481px) {
+    .ingr{width:108px;height:108px;font-size:20px;}
+    #mixBowl{width:160px;height:160px;font-size:20px;}
+    #bakeBtn{width:280px;height:70px;font-size:28px;}
+    #bakeStopBtn{width:280px;height:70px;font-size:28px;}
+    #recipeBtn{width:110px;height:50px;font-size:22px;}
+    #ingrList{gap:15px;}
+}
+
+/* 手机响应式 */
+@media (max-width: 480px){
+    html{font-size:10px;}
+    #box{width:100vw;height:calc(100vw * 16 / 9);max-width:calc(100vh * 9 / 16);max-height:100vh;}
+    h1{font-size:40px !important;}
+    header{height:56px;padding:0 14px;font-size:18px;}
+    #gamePage{ --hdr:56px; --barH:5vw; --barTop:3vh; } /* barH 用相对单位 */
+    .btn{width:240px;height:70px;font-size:28px !important;}
+    .btn2{width:80vw !important;height:14vw !important;font-size:6vw !important;}
+    .ingr{width:72px;height:72px;font-size:16px !important;}
+    #mixBowl{width:120px;height:120px;font-size:16px !important;}
+    #bakeBtn{width:200px;height:60px;font-size:20px !important;}
+    #bakeStopBtn{width:200px;height:60px;font-size:20px !important;}
+    #recipeBtn{width:80px;height:40px;font-size:16px !important;}
+    #ingrList{gap:10px !important;}
+    #ringCanvas{width:90vw !important;height:90vw !important;}
+    #evalEmoji{font-size:20vw !important;}
+    #evalWords{font-size:5vw !important;}
+    /* 关键修复：让气泡与耐心条在手机端可见 */
+    #gamePage:not(.game-eval) #customerWords{
+        position: fixed !important;
+        top: calc(var(--hdr) + var(--barTop) + var(--barH) + 8px) !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        margin: 0 !important;
+        max-width: 80% !important; /* 基于#box容器宽度的80% */
+        width: 80% !important;
+        border-radius: 20px !important;
+        box-shadow: 0 8px 25px rgba(255, 182, 213, 0.2), 0 3px 8px rgba(255, 182, 213, 0.15) !important;
+        border: 2px solid rgba(255, 182, 213, 0.3) !important;
+    }
+    
+    /* 手机端点单页气泡响应式 - 与评价页保持一致 */
+    #gamePage:not(.game-eval) #customerWords {
+        max-width: 80% !important;
+        width: 80% !important;
+    }
+    #patienceBar{width:80% !important;height:5vw !important;margin-bottom:3vh;}
+    /* 下调点单页立绘高度并取消上移，避免遮挡耐心条 */
+    #gamePage:not(.game-eval) .customer-avatar{height:26vh;max-height:30vh;transform:none !important;}
+    /* 恢复点单页立绘的原始大小 */
+    #gamePage:not(.game-eval) .customer-avatar{height:70vh;max-height:700px;}
+    /* 评价页立绘保持偏移 */
+    .game-eval .customer-avatar{transform:translateY(calc(var(--orderAvatarOffset, 5vh) + 10vh)) !important;}
+}
+
+/* ===== 评价页人物立绘和气泡对话框 ===== */
+.customer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80%;
+}
+
+/* 评价页的立绘尺寸（图片本身为透明PNG） */
+.customer-avatar {
+    width: auto;
+    height: 28vh;
+    max-height: 280px;
+    margin-bottom: 20px;
+    object-fit: contain;
+}
+
+.customer-bubble {
+    background-color: #fff3f8;
+    border-radius: 20px;
+    padding: 20px;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#evalEmoji {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+#evalWords {
+    font-size: 24px;
+    color: #444;
+}
+/* ===== 成品图显示 ===== */
+.dish-result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 3;   /* 在柜台之上 */
+}
+
+/* 评价态：成品展示悬浮在"好的"按钮上方 */
+.game-eval #dishResult {
+    position: fixed;
+    bottom: clamp(80px, 12vh, 140px); /* 在"好的"按钮上方 */
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    z-index: 4; /* 确保在按钮之上 */
+}
+
+.dish-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    margin-bottom: 15px;
+    border: 3px solid #ffb6d5;
+    background: #fff3f8;
+}
+
+.dish-name {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff7eb6;
+    text-align: center;
+}
+/* styles.css 末尾已有 */
+.dish-image.wrong  { border-color: #636e72; } /* 灰 */
+.dish-image.good   { border-color: #ffeaa7; } /* 黄 */
+.dish-image.perfect{ border-color: #7bed9f; } /* 绿 */
+
+/* ===== 手机端等比缩放（≤480px 生效） ===== */
+@media (max-width: 480px) {
+    /* 标题页手机端样式 */
+    h1{font-size:36px;margin:0 0 10px;}
+    .btn{width:60vw;height:12vw;font-size:4.5vw;}
+    #helpBtn{width:45px;height:45px;font-size:20px;bottom:80px;}
+    #musicToggle{width:45px;height:45px;font-size:20px;}
+    
+    .help-content{padding:20px;max-width:90vw;}
+    .help-title{font-size:18px;}
+    .help-text{font-size:13px;}
+    .help-close{height:45px;font-size:16px;}
+    
+    /* 文字 */
+    #customerWords,
+    #evalWords   { font-size: 4vw; }
+    #evalEmoji   { font-size: 10vw; }
+    .dish-name    { font-size: 3.5vw; }
+
+    /* 按钮 */
+    .btn2         { width: 70vw; height: 12vw; font-size: 4.5vw; }
+    #bakeStopBtn  { width: 60vw; height: 10vw; font-size: 4vw; }
+
+    /* 间距 */
+    #customerPan,
+    #kitchenPage,
+    #evalPage     { gap: 3vh; padding: 3vh; }
+
+    /* 立绘 & 气泡 */
+    .customer-avatar { width: 25vw; height: 25vw; }
+    .customer-bubble { max-width: 80vw; padding: 3vw; }
+    .dish-image      { width: 25vw; height: 25vw; }
+}
+/* ===== 背景图全屏替换 ===== */
+#box{
+    background:url('bg_front.webp') center/cover no-repeat;
+    transition:background 0.4s;   /* 平滑切换 */
+}
+#kitchenPage.active{
+    background:url('bg_kitchen.webp') center/cover no-repeat;
+}
+/* ===== 场景背景层（独立于 #box） ===== */
+.scene-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;          /* 低于 UI，高于 #box */
+    background: center/cover no-repeat;
+    transition: background 0.4s;
+}
+.scene-bg.front { background-image: url('bg_front.webp'); }
+.scene-bg.kitchen { background-image: url('bg_kitchen.webp'); }
+
+/* 让 #box 本身透明，只当容器 */
+#box { background: none !important; }
+/* ===== 场景页内背景（画面级） ===== */
+#gamePage {
+    background: url('bg_front.webp') center/cover no-repeat;
+    transition: background 0.4s;
+    position: relative;   /* 关键 */
+    height: 100%;
+    flex-direction: column;
+}
+#kitchenPage {
+    background: url('bg_kitchen.webp') center/cover no-repeat;
+    transition: background 0.4s;
+}
+
+/* 让 #box 本身透明，只当排版容器 */
+#box { background: none !important; }
+/* ===== 立绘等比缩放（前台） ===== */
+#gamePage .customer-avatar {
+    width: auto;
+    height: 70vh;          /* 占画面高度的70% */
+    max-height: 700px;
+    object-fit: contain;
+    transition: opacity 0.3s;
+    transform: translateY(var(--orderAvatarOffset, 5vh)); /* 点单页立绘位置 */
+}
+#evalPage .customer-avatar { transform: translateY(2vh); }
+
+/* 点单页：让气泡覆盖在立绘之上 */
+#gamePage .customer-avatar { position: relative; z-index: 1; }
+#gamePage .customer-bubble  { position: relative; z-index: 3; }
+/* 柜台前景覆盖层（位于立绘上方、对话/按钮/成品下方） */
+.counter-overlay{
+    position:absolute;
+    inset:0;                        /* 容器与游戏画面一致大小 */
+    background: url('images/counter_front.png') center bottom / 100% auto no-repeat; /* 柜台贴图，贴底对齐 */
+    pointer-events:none;            /* 不拦截交互 */
+    z-index: 2;                     /* 高于立绘(1)，低于气泡/按钮/成品(3/4) */
+}
+
+/* ===== 自定义弹窗系统 ===== */
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 80vw;
+    max-height: 70vh;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: scale(0.8) translateY(20px);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow-y: auto;
+    border: 2px solid #e9ecef;
+}
+
+.modal-overlay.show .modal-content {
+    transform: scale(1) translateY(0);
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.modal-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.modal-body {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #495057;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.modal-footer {
+    text-align: center;
+}
+
+.modal-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    min-width: 120px;
+}
+
+.modal-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.modal-btn:active {
+    transform: translateY(0);
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #6c757d;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: #f8f9fa;
+    color: #495057;
+}
+
+/* 特殊弹窗样式 */
+.modal-recipe .modal-content {
+    background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
+    border: 2px solid #ffb74d;
+}
+
+.modal-recipe .modal-title {
+    color: #e65100;
+}
+
+.modal-unlock .modal-content {
+    background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+    border: 2px solid #4caf50;
+}
+
+.modal-unlock .modal-title {
+    color: #2e7d32;
+}
+
+.modal-gameover .modal-content {
+    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+    border: 2px solid #f44336;
+}
+
+.modal-gameover .modal-title {
+    color: #c62828;
+}
+
+.modal-roundend .modal-content {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border: 2px solid #2196f3;
+}
+
+.modal-roundend .modal-title {
+    color: #1565c0;
+}
+
+/* 点击引导动画 */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) translateY(0);
+    }
+    40% {
+        transform: translateX(-50%) translateY(-10px);
+    }
+    60% {
+        transform: translateX(-50%) translateY(-5px);
+    }
+}
+
+/* 特殊顾客对话气泡闪烁效果 */
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 8px 32px rgba(255, 182, 213, 0.15), 0 2px 8px rgba(255, 182, 213, 0.1), 0 0 0 0 rgba(255, 182, 213, 0.4);
+        border-color: rgba(255, 182, 213, 0.2);
+    }
+    50% {
+        box-shadow: 0 12px 40px rgba(255, 182, 213, 0.3), 0 4px 12px rgba(255, 182, 213, 0.2), 0 0 0 8px rgba(255, 182, 213, 0.1);
+        border-color: rgba(255, 182, 213, 0.5);
+    }
+    100% {
+        box-shadow: 0 8px 32px rgba(255, 182, 213, 0.15), 0 2px 8px rgba(255, 182, 213, 0.1), 0 0 0 0 rgba(255, 182, 213, 0.4);
+        border-color: rgba(255, 182, 213, 0.2);
+    }
+}
+
+/* 当有pendingDialog时，对话气泡添加闪烁效果 */
+#customerWords.has-pending {
+    animation: pulse-glow 2s infinite;
+    cursor: pointer;
+    position: relative;
+    background: linear-gradient(135deg, #ffffff 0%, #fff0f8 50%, #fff8fc 100%);
+}
+
+#customerWords.has-pending::after {
+    content: '💬';
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    font-size: 24px;
+    animation: bounce 1s infinite;
+    background: linear-gradient(135deg, #ffb6d5, #ffc0cb);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(255, 182, 213, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .modal-content {
+        margin: 20px;
+        padding: 20px;
+        max-width: calc(80vw - 40px);
+        max-height: 60vh;
+    }
+    
+    .modal-title {
+        font-size: 20px;
+    }
+    
+    .modal-body {
+        font-size: 14px;
+    }
+    
+    .modal-btn {
+        padding: 10px 25px;
+        font-size: 14px;
+    }
+}
+
+/* ===== 悬挂气泡：点单页贴耐心条下方；评价页贴顶部UI ===== */
+#gamePage:not(.game-eval) #customerWords {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    top: calc(var(--hdr) + var(--barTop) + var(--barH) + 8px);
+    z-index: 4; /* 文字在柜台之上 */
+    margin: 0; /* 绝对定位避免挤压立绘 */
+    max-width: 640px !important; /* 和耐心值条一样宽 */
+    width: 640px !important;
+}
+.game-eval #customerWords {
+    top: calc(var(--hdr) + 8px);
+    margin: 0;
+    max-width: 640px !important;
+    width: 640px !important;
+}
+
+/* 手机端评价页气泡响应式 */
+@media (max-width: 480px) {
+    .game-eval #customerWords {
+        max-width: 80% !important;
+        width: 80% !important;
+    }
+}
+
+/* ===== 低DPI屏幕（如1080p）特别修正：避免元素过大 ===== */
+@media (max-width: 1920px) and (min-width: 1200px) and (max-height: 1200px) and (max-resolution: 120dpi) {
+    #box{ 
+        width: 80vw; 
+        height: calc(80vw * 16 / 9); 
+        max-width: calc(100vh * 9 / 16); 
+        max-height: 100vh; 
+    }
+    #gamePage .customer-avatar { 
+        --orderAvatarOffset: 6vh;
+    }
+    #gamePage.game-eval .customer-avatar { 
+        --evalAvatarOffset: 6vh;
+    }
+}
+
+/* ===== 高DPI屏幕（如2K/4K）特别修正：确保元素足够大 ===== */
+@media (min-width: 1920px) and (min-resolution: 120dpi) {
+    #box{ 
+        width: 100vw; 
+        height: calc(100vw * 16 / 9); 
+        max-width: calc(100vh * 9 / 16); 
+        max-height: 100vh; 
+    }
+    #gamePage .customer-avatar { 
+        --orderAvatarOffset: 5vh;
+    }
+    #gamePage.game-eval .customer-avatar { 
+        --evalAvatarOffset: 19vh;
+    }
+}
+
+/* ===== 1K 屏特别修正：避免 #box 被 9:16 公式过度压窄 ===== */
+@media (max-height: 900px) and (min-width: 1000px) and (min-width: 1921px) {
+    #box{ width:100vw; height:100vh; max-width:calc(100vh * 9 / 16); max-height:100vh; }
+    #gamePage .customer-avatar { 
+        --orderAvatarOffset: 6vh;
+    }
+    #gamePage.game-eval .customer-avatar { 
+        --evalAvatarOffset: 6vh;
+    }
+}
+
+#gamePage .btn2 {
+    position: absolute;
+    left: 50%;
+    bottom: 4vh;          /* 离底 4% 屏幕高，可随你调 */
+    transform: translateX(-50%);
+    width: 80vw;          /* 手机也别太大 */
+    max-width: 640px;     /* 电脑别撑太宽 */
+    height: 14vw;
+    max-height: 120px;
+    font-size: 4.5vw;
+    margin: 0;            /* 把之前的 margin-top 清掉 */
+}
+@media (min-width: 768px) {
+    #gamePage .btn2 {
+        width: 60vw;
+        height: 80px;
+        font-size: 32px;
+        bottom: 30px;   /* 电脑再大也给固定像素 */
+    }
+}
+
+/* 任何尺寸都生效 */
+.customer-avatar {
+    position: relative;   /* 让它成为新的层叠上下文 */
+    z-index: 1;           /* 只比背景高 */
+}
+
+#gamePage .btn2 {
+    z-index: 3;   /* 比柜台与立绘高 */
+}
+
+#customerWords,
+#patienceBar {
+    position: relative;
+    z-index: 2;
+}
+
+/* 提升文字气泡层级，确保在柜台前景之上 */
+#customerWords { z-index: 4; }
+#patienceBar  { z-index: 3; }
+
+/* ===== 前台内的评价状态 ===== */
+.game-eval #patienceBar { display:none; }
+.game-eval #enterKitchenWrap { display:none; }
+.game-eval #dishResult { display:flex; }
+.game-eval #evalOkBtn { display:inline-block; }
+
+/* 评价态：独立定位各个元素 */
+.game-eval .customer-avatar {
+    position: relative !important;
+    transform: translateY(calc(var(--orderAvatarOffset, 5vh) + 4vh)) !important;
+    z-index: 1;
+}
+
+.game-eval #customerWords {
+    position: fixed !important;
+    top: 120px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 4;
+    margin: 0 !important;
+    background: linear-gradient(135deg, #fff8f0 0%, #fff0f8 50%, #f8f0ff 100%);
+    border: 2px solid rgba(255, 182, 213, 0.3);
+    box-shadow: 0 10px 35px rgba(255, 182, 213, 0.2), 0 3px 10px rgba(255, 182, 213, 0.15);
+}
+
+/* 评价页对话气泡的装饰 */
+.game-eval #customerWords::before {
+    background: linear-gradient(135deg, #ffb6d5, #ffc0cb, #dda0dd);
+    opacity: 0.4;
+}
+
+/* ===== 评价态：将"好的"按钮悬浮固定在画面底部并随画面缩放 ===== */
+.game-eval #evalOkBtn {
+    position: fixed !important;   /* 固定定位，独立于其他元素 */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: clamp(12px, 4vh, 32px) !important;
+    width: clamp(200px, 60vw, 640px) !important;
+    height: clamp(48px, 8vh, 100px) !important;
+    font-size: clamp(18px, 4.5vw, 32px) !important;
+    z-index: 5;   /* 始终最高，便于点击 */
+}
+
+.dish-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 15px;
+    overflow: hidden;        /* 把图裁成圆角 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #ffb6d5;
+    background: #fff3f8;
+}
+
+.dish-image img{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;   /* 让图完整缩进框里，不变形 */
+    max-width: 100%;       /* 防超大图溢出 */
+    max-height: 100%;
+  }
+
+/* ===== 桌面端立绘放大（放在通用规则之后，确保覆盖） ===== */
+@media (min-width: 1200px) {
+    #gamePage .customer-avatar { height: 75vh; max-height: 900px; }
+    #evalPage .customer-avatar { height: 36vh; max-height: 480px; }
+    #customerPan { padding: 0 40px !important; }
+    #customerWords { max-width: 640px !important; width: 640px !important; }
+}
+
+@media (min-width: 1920px) {
+    #gamePage .customer-avatar { height: 78vh; max-height: 1100px; }
+    #evalPage .customer-avatar { height: 40vh; max-height: 560px; }
+    #customerPan { padding: 0 40px !important; }
+    #customerWords { max-width: 640px !important; width: 640px !important; }
+}
+
+/* ===== 手机端：评价阶段防挤压优化 ===== */
+@media (max-width: 480px) {
+    /* 让评价阶段容器可滚动，避免被挤出屏幕 */
+    .game-eval #customerPan {
+        height: calc(100% - 56px); /* 扣掉 header 高度（手机端 header:56px） */
+        overflow-y: auto;
+        padding-bottom: 12vh; /* 预留底部按钮空间 */
+        box-sizing: border-box;
+    }
+    /* 缩小评价阶段立绘，取消上移 */
+    .game-eval #gamePage .customer-avatar {
+        height: 26vh !important;
+        max-height: 30vh !important;
+        transform: none !important;
+        margin-bottom: 1.5vh;
+    }
+    /* 手机端：独立定位各个元素 - 已移到480px媒体查询中 */
+    
+    .game-eval #customerWords {
+        top: 100px !important; /* 手机端对话气泡位置 */
+        max-width: 80% !important;
+        width: 80% !important;
+        border-radius: 20px !important;
+        box-shadow: 0 8px 25px rgba(255, 182, 213, 0.2), 0 3px 8px rgba(255, 182, 213, 0.15) !important;
+        border: 2px solid rgba(255, 182, 213, 0.3) !important;
+    }
+    
+    /* 手机端：成品展示悬浮在"好的"按钮上方 */
+    .game-eval #dishResult {
+        position: fixed;
+        bottom: clamp(60px, 10vh, 120px); /* 手机端在"好的"按钮上方 */
+        left: 50%;
+        transform: translateX(-50%);
+        margin: 0;
+        padding: 2vh 3vw;
+        z-index: 4;
+    }
+    .game-eval .dish-image { width: 22vw; height: 22vw; }
+    .game-eval .dish-name  { font-size: 4vw; }
+    /* 缩小对话气泡字号和边距（已有基础规则，这里再微调） */
+    .game-eval #customerWords {
+        margin-bottom: 2vh !important;
+        max-width: 80% !important;
+        width: 80% !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+    }
+    /* 其他手机端细节保留，这里不再设置 #evalOkBtn，改用全局评价态浮动按钮 */
+}
+
+/* ===== 桌面端：统一点单与评价页立绘位置（强覆盖） ===== */
+@media (min-width: 1200px) {
+    #gamePage .customer-avatar {
+        --orderAvatarOffset: 20vh;
+    }
+    #gamePage.game-eval .customer-avatar {
+        --evalAvatarOffset: 20vh;
+    }
+}
+
+/* 强覆盖：统一桌面端(≥1000px)两种状态的立绘位置，压过 1K 专用 6vh 规则 */
+@media (min-width: 1000px) {
+    #gamePage .customer-avatar {
+        --orderAvatarOffset: 5vh !important;
+    }
+    #gamePage.game-eval .customer-avatar {
+        --evalAvatarOffset: 19vh !important;
+    }
+    #customerPan { padding: 0 40px !important; }
+    #customerWords { max-width: 640px !important; width: 640px !important; }
+}
+
+/* ===== 最高优先级：强制气泡宽度和居中（覆盖所有前面的规则） ===== */
+#gamePage:not(.game-eval) #customerWords {
+    max-width: 640px !important;
+    width: 640px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    box-sizing: border-box !important;
+}
+
+/* 终极覆盖：确保在所有断点下都生效，但保留手机端响应式 */
+@media screen and (min-width: 481px) {
+    #gamePage:not(.game-eval) #customerWords {
+        max-width: 640px !important;
+        width: 640px !important;
+    }
+}
+
+/* 手机端特殊处理：确保响应式生效 */
+@media screen and (max-width: 480px) {
+    #gamePage:not(.game-eval) #customerWords {
+        max-width: 80% !important;
+        width: 80% !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+    }
+}
