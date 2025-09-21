@@ -1,7 +1,7 @@
 
 /* ===== 预加载第一张立绘 ===== */
 const firstAvatar = new Image();
-firstAvatar.src = 'images/customer1_think.png';
+firstAvatar.src = 'images/customer1_think.webp';
 
 /* ==========  全局状态  ========== */
 const RENT = 300;
@@ -127,6 +127,9 @@ function showUnlockModal(unlockMessage, story) {
 }
 
 function showGameOverModal() {
+    // 播放破产失败音效
+    playEndingFailSound();
+    
     const content = `
         <div style="text-align: center;">
             <div style="font-size: 48px; margin-bottom: 15px;">💸</div>
@@ -207,6 +210,7 @@ function showGameStartModal() {
 function getGameEnding(money, fame) {
     // 传奇甜品大师：金钱 > 3300 且 声誉 > 400
     if (money > 3000 && fame > 600) {
+        playEndingSuccessSound(); // 播放成功音效
         return {
             title: '传奇甜品大师',
             description: '你的店登上了美食杂志的封面，被称为"本世纪必去的甜品天堂"。人们来这里不仅为了无可挑剔的美味，更为感受你倾注在每一份甜品中的心意。',
@@ -214,10 +218,11 @@ function getGameEnding(money, fame) {
         };
     }
     
-    // 街角的心灵咖啡馆：声誉 > 450 且 金钱 < 2800
+    // 街角的心灵小馆：声誉 > 450 且 金钱 < 2800
     if (fame > 450 && money > 2000) {
+        playEndingSuccessSound(); // 播放成功音效
         return {
-            title: '街角的心灵咖啡馆',
+            title: '街角的心灵小馆',
             description: '这里卖的不仅是甜点，更是街坊们的回忆和温暖，它早已成为了大家心中无可替代的灯塔。',
             type: 'heart'
         };
@@ -225,6 +230,7 @@ function getGameEnding(money, fame) {
     
     // 伤痕累累的幸存者：金钱 >= 2800 且未达到上述结局
     if (money >= 1500) {
+        playEndingFailSound(); // 播放失败音效
         return {
             title: '伤痕累累的幸存者',
             description: '最后一次将房租递给房东时，你的手还在因长期劳累而微微颤抖。这十年是一场艰苦的马拉松，你跌跌撞撞，数次濒临绝境，但终究是撑了下来。店铺依旧简陋，但它是完全属于你的了。你看着夕阳照进空店，长舒一口气——至少，活下来了。明天，可以重新开始了。',
@@ -233,6 +239,7 @@ function getGameEnding(money, fame) {
     }
     
     // 默认普通结局
+    playEndingFailSound(); // 播放失败音效
     return {
         title: '平淡结局',
         description: '日子还长，慢慢经营吧～',
@@ -355,12 +362,72 @@ const bgmList = [
 ];
 let isMusicEnabled = true;
 
+/* ==========  音效管理  ========== */
+let bakeSound = null;
+const bakeSoundFile = 'bake_complete.wav'; // 烘焙完成音效文件
+
+// 结局音效
+let endingSuccessSound = null;
+let endingFailSound = null;
+const endingSuccessSoundFile = 'ending_success.wav'; // 成功结局音效文件
+const endingFailSoundFile = 'ending_fail.wav'; // 失败结局音效文件
+
 /* ==========  音乐初始化  ========== */
 function initBGM() {
     bgm = new Audio();
     bgm.loop = true;
     bgm.volume = 0.3; // 设置音量为30%
     loadBGM();
+}
+
+/* ==========  音效初始化  ========== */
+function initSoundEffects() {
+    // 烘焙音效
+    bakeSound = new Audio();
+    bakeSound.src = bakeSoundFile;
+    bakeSound.volume = 0.5; // 设置音效音量为50%
+    bakeSound.preload = 'auto';
+    
+    // 结局音效
+    endingSuccessSound = new Audio();
+    endingSuccessSound.src = endingSuccessSoundFile;
+    endingSuccessSound.volume = 0.6; // 设置成功结局音效音量为60%
+    endingSuccessSound.preload = 'auto';
+    
+    endingFailSound = new Audio();
+    endingFailSound.src = endingFailSoundFile;
+    endingFailSound.volume = 0.6; // 设置失败结局音效音量为60%
+    endingFailSound.preload = 'auto';
+}
+
+/* ==========  播放烘焙音效  ========== */
+function playBakeSound() {
+    if (isMusicEnabled && bakeSound) {
+        // 重置音效到开始位置，确保可以重复播放
+        bakeSound.currentTime = 0;
+        bakeSound.play().catch(e => {
+            console.log('烘焙音效播放失败:', e);
+        });
+    }
+}
+
+/* ==========  播放结局音效  ========== */
+function playEndingSuccessSound() {
+    if (isMusicEnabled && endingSuccessSound) {
+        endingSuccessSound.currentTime = 0;
+        endingSuccessSound.play().catch(e => {
+            console.log('成功结局音效播放失败:', e);
+        });
+    }
+}
+
+function playEndingFailSound() {
+    if (isMusicEnabled && endingFailSound) {
+        endingFailSound.currentTime = 0;
+        endingFailSound.play().catch(e => {
+            console.log('失败结局音效播放失败:', e);
+        });
+    }
 }
 
 function loadBGM() {
@@ -526,16 +593,16 @@ const BASE_INGREDIENTS = ['面粉','鸡蛋','巧克力','抹茶粉','苹果','�
 
 // 配料图片映射
 const INGREDIENT_IMAGES = {
-    '面粉': 'ingr_面粉.png',
-    '鸡蛋': 'ingr_鸡蛋.png', 
-    '巧克力': 'ingr_巧克力.png',
-    '抹茶粉': 'ingr_抹茶粉.png',
-    '苹果': 'ingr_苹果.png',
-    '糖浆': 'ingr_糖浆.png',
-    '杏仁粉': 'ingr_杏仁粉.png',
-    '食用色素': 'ingr_食用色素.png',
-    '奶油': 'ingr_奶油.png',
-    '草莓': 'ingr_草莓.png'
+    '面粉': 'ingr_面粉.webp',
+    '鸡蛋': 'ingr_鸡蛋.webp', 
+    '巧克力': 'ingr_巧克力.webp',
+    '抹茶粉': 'ingr_抹茶粉.webp',
+    '苹果': 'ingr_苹果.webp',
+    '糖浆': 'ingr_糖浆.webp',
+    '杏仁粉': 'ingr_杏仁粉.webp',
+    '食用色素': 'ingr_食用色素.webp',
+    '奶油': 'ingr_奶油.webp',
+    '草莓': 'ingr_草莓.webp'
 };
 
 // 动态配料数组（会根据特殊顾客解锁而增加）
@@ -551,7 +618,7 @@ function genIngrButtons(){
         
         // 创建配料图片
         const img = document.createElement('img');
-        img.src = `images/${INGREDIENT_IMAGES[n] || 'ingr_默认.png'}`;
+        img.src = `images/${INGREDIENT_IMAGES[n] || 'ingr_默认.webp'}`;
         img.alt = n;
         img.className = 'ingr-image';
         img.onerror = () => {
@@ -746,6 +813,9 @@ function stopRing(){
     if(ring.angle > 0.4 && ring.angle < 0.6) res = 2;
     else if(ring.angle > 0.25 && ring.angle < 0.75) res = 1;
     bakeResult = res;
+
+    // 播放烘焙完成音效
+    playBakeSound();
 
     // 1. 立即关遮罩
     document.getElementById('bakeCover').style.display = 'none';
@@ -1165,6 +1235,7 @@ function getNextDialog(){
 /* ==========  页面加载完成后初始化  ========== */
 document.addEventListener('DOMContentLoaded', function() {
     initBGM();
+    initSoundEffects(); // 初始化音效系统
     
     // 添加双击音乐按钮切换BGM的功能
     document.getElementById('musicToggle').addEventListener('dblclick', function() {
@@ -1282,8 +1353,8 @@ function getRecipeDisplayText() {
 }
 /* ========== 立绘切换器 ========== */
 // 规则：普通顾客立绘放在 images/ 目录，命名为：
-// customer1_think.png / customer1_happy.png / customer1_angry.png
-// customer2_think.png / ...
+// customer1_think.webp / customer1_happy.webp / customer1_angry.webp
+// customer2_think.webp / ...
 // 数量不限；系统将自动探测 1..NORMAL_AVATAR_MAX 的存在情况
 const NORMAL_AVATAR_PREFIX = 'customer';
 const NORMAL_AVATAR_MAX = 6; // 根据实际图片数量调整
@@ -1291,15 +1362,15 @@ const normalAvatarKeys = [];  // e.g. ['normal-1','normal-2']
 
 const avatarMap = {
     // 预置两个普通顾客作兜底（当未放入任何 customerN_* 时使用）
-    '普通-学生': ['customer1_think.png','customer1_happy.png','customer1_angry.png'],
-    '普通-上班族': ['customer2_think.png','customer2_happy.png','customer2_angry.png'],
+    '普通-学生': ['customer1_think.webp','customer1_happy.webp','customer1_angry.webp'],
+    '普通-上班族': ['customer2_think.webp','customer2_happy.webp','customer2_angry.webp'],
     // 特殊顾客
-    'food_blogger': ['blogger_think.png','blogger_happy.png','blogger_angry.png'],
-    'french_tourist': ['tourist_think.png','tourist_happy.png','tourist_angry.png'],
-    'couple': ['couple_think.png','couple_happy.png','couple_angry.png']
+    'food_blogger': ['blogger_think.webp','blogger_happy.webp','blogger_angry.webp'],
+    'french_tourist': ['tourist_think.webp','tourist_happy.webp','tourist_angry.webp'],
+    'couple': ['couple_think.webp','couple_happy.webp','couple_angry.webp']
 };
 
-// 探测普通顾客立绘：检查 images/customer{i}_think.png 是否存在
+// 探测普通顾客立绘：检查 images/customer{i}_think.webp 是否存在
 function detectNormalAvatars() {
     const checks = [];
     for (let i = 1; i <= NORMAL_AVATAR_MAX; i++) {
@@ -1309,14 +1380,14 @@ function detectNormalAvatars() {
                 const key = `normal-${i}`;
                 normalAvatarKeys.push(key);
                 avatarMap[key] = [
-                    `${NORMAL_AVATAR_PREFIX}${i}_think.png`,
-                    `${NORMAL_AVATAR_PREFIX}${i}_happy.png`,
-                    `${NORMAL_AVATAR_PREFIX}${i}_angry.png`
+                    `${NORMAL_AVATAR_PREFIX}${i}_think.webp`,
+                    `${NORMAL_AVATAR_PREFIX}${i}_happy.webp`,
+                    `${NORMAL_AVATAR_PREFIX}${i}_angry.webp`
                 ];
                 resolve(true);
             };
             img.onerror = () => resolve(false);
-            img.src = `images/${NORMAL_AVATAR_PREFIX}${i}_think.png`;
+            img.src = `images/${NORMAL_AVATAR_PREFIX}${i}_think.webp`;
         }));
     }
     return Promise.all(checks).then(() => {
@@ -1342,9 +1413,9 @@ function setCustomerAvatar(type, mood = 'think') {
     const img = document.querySelector('.customer-avatar');
     if (!img) return;
     img.onerror = () => {
-        // 回退：若失败，尝试 transparent.png，再次失败则移除错误监听
+        // 回退：若失败，尝试 transparent.webp，再次失败则移除错误监听
         img.onerror = null;
-        img.src = 'images/transparent.png';
+        img.src = 'images/transparent.webp';
     };
     img.src = path;
     // 记录本次顾客的立绘类型，保证点单与评价一致
@@ -1360,14 +1431,14 @@ function setEvalAvatar(type, result) {
     if (!img) return;
     img.onerror = () => {
         img.onerror = null;
-        img.src = 'images/transparent.png';
+        img.src = 'images/transparent.webp';
     };
     img.src = 'images/' + list[idx];
 }
 
 function preloadFirstAvatar() {
     const img = new Image();
-    img.src = 'images/customer1_think.png';
+    img.src = 'images/customer1_think.webp';
 }
 
 // 统一拿价格
